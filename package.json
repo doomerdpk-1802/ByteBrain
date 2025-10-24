@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc -b",
-    "dev": "nodemon dist/index.js",
+    "dev": "npx tsc -b && nodemon dist/index.js",
     "start": "npx tsc -b && node dist/index.js"
   },
   "keywords": [],
