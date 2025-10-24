@@ -8,9 +8,9 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hello from ByteBrain App!");
-});
+import { userRouter } from "./routes/routes.js";
+
+app.use("/api/v1/user", userRouter);
 
 async function startApplication() {
   try {
