@@ -10,7 +10,7 @@ app.use(express.json());
 
 import { userRouter } from "./routes/routes.js";
 
-app.use("/api/v1/user", userRouter);
+app.use("/api/v1", userRouter);
 
 async function startApplication() {
   try {
