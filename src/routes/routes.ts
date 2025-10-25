@@ -9,6 +9,7 @@ import { UserModel, TagModel, LinkModel, ContentModel } from "../db/db.js";
 import jwt from "jsonwebtoken";
 import { userMiddleware } from "../middlewares/userMiddleware.js";
 import { z } from "zod";
+import crypto from "crypto";
 const saltRounds = 10;
 
 if (!JWT_SECRET) {
@@ -273,6 +274,59 @@ userRouter.delete("/delete-content", async (req, res) => {
     console.error("Error deleting content:", e);
     res.status(500).json({
       error: "Error Deleting Content!",
+    });
+  }
+});
+
+userRouter.post("/share", async (req, res) => {
+  try {
+    const { contentId, share } = req.body;
+
+    const foundContent = await ContentModel.findOne({
+      _id: contentId,
+    });
+
+    if (!foundContent) {
+      return res.status(400).json({
+        error: "content not found!",
+      });
+    }
+
+    if (foundContent.userId.toString() != req.userId) {
+      return res.status(403).json({
+        error: "Unauthorized!",
+      });
+    }
+
+    if (share === true) {
+      const sharedLink = await LinkModel.create({
+        hash: crypto
+          .randomBytes(15)
+          .toString("base64")
+          .replace(/[^A-Za-z0-9]/g, "")
+          .slice(0, 20),
+        contentId,
+        userId: req.userId,
+      });
+
+      res.status(201).json({
+        message: "content shared successfully",
+      });
+    }
+
+    if (share === false) {
+      await LinkModel.findOneAndDelete({
+        contentId: contentId,
+      });
+
+      res.status(200).json({
+        message: "Content unshared successfully!",
+      });
+    }
+  } catch (e) {
+    console.error("Error Sharing content:", e);
+    res.status(500).json({
+      error: "Error Sharing Content!",
     });
   }
 });
