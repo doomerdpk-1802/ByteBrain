@@ -1,37 +1,40 @@
 import express, { Express } from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-dotenv.config();
+import { userRouter } from "./routes/routes.js";
+import http from "http";
+import { DATABASE_URL_TEST_STR, PORT } from "./config.js";
 
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = Number(PORT) || 3000;
 
 app.use(express.json());
-
-import { userRouter } from "./routes/routes.js";
 
 app.use("/api/v1", userRouter);
 
 async function startApplication() {
   try {
-    if (!process.env.DATABASE_URL_TEST) {
-      throw new Error("Error fetching DATABASE URL from environment variables");
-    }
-
-    await mongoose.connect(process.env.DATABASE_URL_TEST);
+    await mongoose.connect(DATABASE_URL_TEST_STR);
     console.log("Successfully connected to the Database!");
     app.listen(port, () => {
       console.log("Server is running on port " + port);
     });
+
+    const server = http.createServer(app);
+    const gracefulShutdown = async () => {
+      console.log("Shutting down...");
+      await mongoose.connection.close();
+      console.log("MongoDB connection closed");
+      server.close(() => {
+        console.log("✅ Server closed");
+        process.exit(0);
+      });
+    };
+
+    process.on("SIGINT", gracefulShutdown);
+    process.on("SIGTERM", gracefulShutdown);
   } catch (e) {
     console.error("Error Starting Application:", e);
   }
 }
 
 startApplication();
-
-process.on("SIGINT", async () => {
-  await mongoose.connection.close();
-  console.log("MongoDB connection closed");
-  process.exit(0);
-});

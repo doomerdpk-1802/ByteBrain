@@ -19,7 +19,7 @@ const TagSchema = new Schema(
 
 const LinkSchema = new Schema(
   {
-    hash: { type: String, required: true },
+    hash: { type: String, required: true, unique: true },
     contentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "contents",
@@ -41,16 +41,18 @@ const ContentSchema = new Schema(
   {
     link: { type: String, required: true },
     type: { type: String, enum: contentTypes, required: true },
-    title: { type: String, required: true, unique: true },
+    title: { type: String, required: true },
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "tags" }],
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
-      required: "true",
+      required: true,
     },
   },
   { timestamps: true }
 );
+
+ContentSchema.index({ userId: 1, title: 1 }, { unique: true });
 
 export const UserModel = mongoose.model("users", UserSchema);
 export const TagModel = mongoose.model("tags", TagSchema);

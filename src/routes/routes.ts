@@ -1,7 +1,4 @@
 import { Router } from "express";
-import dotenv from "dotenv";
-dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET;
 import { schemaUser } from "../validators/ValidateUser.js";
 import { schemaContent } from "../validators/ValidateContent.js";
 import bcrypt from "bcrypt";
@@ -10,11 +7,7 @@ import jwt from "jsonwebtoken";
 import { userMiddleware } from "../middlewares/userMiddleware.js";
 import { z } from "zod";
 import crypto from "crypto";
-const saltRounds = 10;
-
-if (!JWT_SECRET) {
-  throw new Error("Error fetching JWT_SECRET from environment variables");
-}
+import { JWT_SECRET_STR, saltRounds } from "../config.js";
 
 export const userRouter = Router();
 
@@ -23,14 +16,14 @@ userRouter.post("/signup", async (req, res) => {
 
   if (validUser.success) {
     try {
-      const { firstName, lastName, email, password } = req.body;
+      const { firstName, lastName, email, password } = validUser.data;
 
       const founduser = await UserModel.findOne({
         email,
       });
 
       if (founduser) {
-        return res.status(403).json({
+        return res.status(409).json({
           error:
             "user with this email already exists. Please provide another email!",
         });
@@ -48,7 +41,13 @@ userRouter.post("/signup", async (req, res) => {
         message: "user signed-up successfully!",
       });
     } catch (e) {
-      console.error("Error Signing up:", e);
+      console.error(
+        `[${req.method} ${req.path}] userId=${
+          req.userId || "N/A"
+        } body=${JSON.stringify(req.body)} Error:`,
+        e
+      );
+
       res.status(500).json({
         error: "Error Signing Up!",
       });
@@ -61,6 +60,12 @@ userRouter.post("/signup", async (req, res) => {
 userRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        error: "Please provide your email id and passowrd for login!",
+      });
+    }
 
     const foundUser = await UserModel.findOne({
       email,
@@ -75,18 +80,24 @@ userRouter.post("/login", async (req, res) => {
 
     if (!isPasswordValid) {
       return res.status(401).json({
-        error: "Invalid Credientials!",
+        error: "Invalid Credentials!",
       });
     }
 
-    const token = jwt.sign({ userId: foundUser._id }, JWT_SECRET);
+    const token = jwt.sign({ userId: foundUser._id }, JWT_SECRET_STR);
 
     res.status(200).json({
       message: "user logged-in successfully",
       token,
     });
   } catch (e) {
-    console.error("Error Logging in:", e);
+    console.error(
+      `[${req.method} ${req.path}] userId=${
+        req.userId || "N/A"
+      } body=${JSON.stringify(req.body)} Error:`,
+      e
+    );
+
     res.status(500).json({
       error: "Error Logging in!",
     });
@@ -149,7 +160,13 @@ userRouter.post("/content", async (req, res) => {
         message: "content created successfully!",
       });
     } catch (e) {
-      console.error("Error creating content:", e);
+      console.error(
+        `[${req.method} ${req.path}] userId=${
+          req.userId || "N/A"
+        } body=${JSON.stringify(req.body)} Error:`,
+        e
+      );
+
       res.status(500).json({
         error: "Error Creating Content!",
       });
@@ -174,7 +191,13 @@ userRouter.get("/contents", async (req, res) => {
       message: userContents,
     });
   } catch (e) {
-    console.error("Error fetching contents:", e);
+    console.error(
+      `[${req.method} ${req.path}] userId=${
+        req.userId || "N/A"
+      } body=${JSON.stringify(req.body)} Error:`,
+      e
+    );
+
     res.status(500).json({
       error: "Error Fetching Contents!",
     });
@@ -189,9 +212,7 @@ userRouter.put("/update-content", async (req, res) => {
       const { contentId, link, type, title, tags }: ContentSchemaType =
         ValidContent.data;
 
-      const foundContent = await ContentModel.findById({
-        _id: contentId,
-      });
+      const foundContent = await ContentModel.findById(contentId);
 
       if (!foundContent) {
         return res.status(400).json({
@@ -235,7 +256,13 @@ userRouter.put("/update-content", async (req, res) => {
         message: "content updated successfully!",
       });
     } catch (e) {
-      console.error("Error updating content:", e);
+      console.error(
+        `[${req.method} ${req.path}] userId=${
+          req.userId || "N/A"
+        } body=${JSON.stringify(req.body)} Error:`,
+        e
+      );
+
       res.status(500).json({
         error: "Error Updating Content!",
       });
@@ -249,9 +276,7 @@ userRouter.delete("/delete-content", async (req, res) => {
   try {
     const { contentId } = req.body;
 
-    const foundContent = await ContentModel.findById({
-      _id: contentId,
-    });
+    const foundContent = await ContentModel.findById(contentId);
 
     if (!foundContent) {
       return res.status(400).json({
@@ -271,7 +296,13 @@ userRouter.delete("/delete-content", async (req, res) => {
       message: "Content deleted successfully!",
     });
   } catch (e) {
-    console.error("Error deleting content:", e);
+    console.error(
+      `[${req.method} ${req.path}] userId=${
+        req.userId || "N/A"
+      } body=${JSON.stringify(req.body)} Error:`,
+      e
+    );
+
     res.status(500).json({
       error: "Error Deleting Content!",
     });
@@ -282,9 +313,7 @@ userRouter.post("/share", async (req, res) => {
   try {
     const { contentId, share } = req.body;
 
-    const foundContent = await ContentModel.findOne({
-      _id: contentId,
-    });
+    const foundContent = await ContentModel.findById(contentId);
 
     if (!foundContent) {
       return res.status(400).json({
@@ -300,11 +329,7 @@ userRouter.post("/share", async (req, res) => {
 
     if (share === true) {
       const sharedLink = await LinkModel.create({
-        hash: crypto
-          .randomBytes(15)
-          .toString("base64")
-          .replace(/[^A-Za-z0-9]/g, "")
-          .slice(0, 20),
+        hash: crypto.randomBytes(10).toString("hex"),
         contentId,
         userId: req.userId,
       });
@@ -324,7 +349,13 @@ userRouter.post("/share", async (req, res) => {
       });
     }
   } catch (e) {
-    console.error("Error Sharing content:", e);
+    console.error(
+      `[${req.method} ${req.path}] userId=${
+        req.userId || "N/A"
+      } body=${JSON.stringify(req.body)} Error:`,
+      e
+    );
+
     res.status(500).json({
       error: "Error Sharing Content!",
     });
@@ -345,7 +376,13 @@ userRouter.get("/me", async (req, res) => {
       message: "Hello " + user.firstName + " " + user.lastName,
     });
   } catch (e) {
-    console.error("Error fetching user", e);
+    console.error(
+      `[${req.method} ${req.path}] userId=${
+        req.userId || "N/A"
+      } body=${JSON.stringify(req.body)} Error:`,
+      e
+    );
+
     res.status(500).json({
       error: "Error fetching user",
     });
