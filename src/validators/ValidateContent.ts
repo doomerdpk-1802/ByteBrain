@@ -3,7 +3,7 @@ import { z } from "zod";
 export const schemaContent = z.object({
   contentId: z.string().optional(),
   link: z.string().url("Invalid URL"),
-  type: z.enum(["image", "video", "article", "audio"]),
+  type: z.enum(["image", "video", "article", "tweets"]),
   title: z
     .string()
     .min(10, "title must have minimum 10 characters!")
