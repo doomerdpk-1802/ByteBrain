@@ -3,12 +3,10 @@ import { z } from "zod";
 export const schemaUser = z.object({
   firstName: z
     .string()
-    .min(1, "First name must be at least 1 characters")
     .max(100, "First name must be less than 100 characters")
     .trim(),
   lastName: z
     .string()
-    .min(1, "Last name must be at least 1 characters")
     .max(100, "Last name must be less than 100 characters")
     .trim()
     .optional(),

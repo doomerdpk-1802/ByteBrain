@@ -3,12 +3,13 @@ import mongoose from "mongoose";
 import { userRouter } from "./routes/routes.js";
 import http from "http";
 import { DATABASE_URL_TEST_STR, PORT } from "./config.js";
+import cors from "cors";
 
 const app: Express = express();
 const port = Number(PORT) || 3000;
 
 app.use(express.json());
-
+app.use(cors());
 app.use("/api/v1", userRouter);
 
 async function startApplication() {
