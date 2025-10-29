@@ -113,7 +113,8 @@ userRouter.post("/content", async (req, res) => {
 
   if (ValidContent.success) {
     try {
-      const { link, type, title, tags }: ContentSchemaType = ValidContent.data;
+      const { link, type, title, tags, linkText }: ContentSchemaType =
+        ValidContent.data;
 
       const content = await ContentModel.findOne({
         title,
@@ -128,12 +129,14 @@ userRouter.post("/content", async (req, res) => {
 
       const userId = req.userId;
 
+      const tagArray = tags.split(",");
+
       // Retrieve all existing tags
-      const existingTags = await TagModel.find({ title: { $in: tags } });
+      const existingTags = await TagModel.find({ title: { $in: tagArray } });
       const existingTagNames = existingTags.map((tag) => tag.title);
 
       // Filter the tags which are not present in current list of tags
-      const newTagNames = tags.filter(
+      const newTagNames = tagArray.filter(
         (tag: string) => !existingTagNames.includes(tag)
       );
 
@@ -153,6 +156,7 @@ userRouter.post("/content", async (req, res) => {
         type,
         title,
         tags: allTagIds,
+        linkText,
         userId,
       });
 
@@ -180,15 +184,24 @@ userRouter.get("/contents", async (req, res) => {
   try {
     const userContents = await ContentModel.find({
       userId: req.userId,
-    });
+    })
+      .populate("tags", "title")
+      .lean();
 
     if (userContents.length === 0) {
       return res.status(200).json({
         message: "No Contents Found!",
       });
     }
+    const formattedContents = userContents.map((content) => ({
+      ...content,
+      tags: Array.isArray(content.tags)
+        ? content.tags.map((tag: any) => tag.title)
+        : [],
+    }));
+
     res.status(200).json({
-      message: userContents,
+      message: formattedContents,
     });
   } catch (e) {
     console.error(
@@ -209,8 +222,14 @@ userRouter.put("/update-content", async (req, res) => {
 
   if (ValidContent.success) {
     try {
-      const { contentId, link, type, title, tags }: ContentSchemaType =
-        ValidContent.data;
+      const {
+        contentId,
+        link,
+        type,
+        title,
+        tags,
+        linkText,
+      }: ContentSchemaType = ValidContent.data;
 
       const foundContent = await ContentModel.findById(contentId);
 
@@ -228,10 +247,12 @@ userRouter.put("/update-content", async (req, res) => {
 
       const userId = req.userId;
 
-      const existingTags = await TagModel.find({ title: { $in: tags } });
+      const tagArray = tags.split(",");
+
+      const existingTags = await TagModel.find({ title: { $in: tagArray } });
       const existingTagNames = existingTags.map((tag) => tag.title);
 
-      const newTagNames = tags.filter(
+      const newTagNames = tagArray.filter(
         (tag: string) => !existingTagNames.includes(tag)
       );
 
@@ -248,6 +269,7 @@ userRouter.put("/update-content", async (req, res) => {
         link,
         type,
         title,
+        linkText,
         tags: allTagIds,
         userId,
       });
