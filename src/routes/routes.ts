@@ -8,6 +8,7 @@ import { userMiddleware } from "../middlewares/userMiddleware.js";
 import { z } from "zod";
 import crypto from "crypto";
 import { JWT_SECRET_STR, saltRounds } from "../config.js";
+import { Request, Response } from "express";
 
 export const userRouter = Router();
 
@@ -104,6 +105,39 @@ userRouter.post("/login", async (req, res) => {
   }
 });
 
+userRouter.get("/brain/:hash", async (req, res) => {
+  try {
+    const foundContent = await LinkModel.findOne({
+      hash: req.params.hash,
+    })
+      .populate({
+        path: "contentId",
+        select: "link type title linkText tags",
+      })
+      .lean()
+      .exec();
+
+    if (!foundContent) {
+      return res.status(404).json({ error: "Content not found!" });
+    }
+
+    res.status(200).json({
+      message: foundContent,
+    });
+  } catch (e) {
+    console.error(
+      `[${req.method} ${req.path}] userId=${
+        req.userId || "N/A"
+      } body=${JSON.stringify(req.body)} Error:`,
+      e
+    );
+
+    res.status(500).json({
+      error: "Error fetching shared content!",
+    });
+  }
+});
+
 userRouter.use(userMiddleware);
 
 type ContentSchemaType = z.infer<typeof schemaContent>;
@@ -180,42 +214,47 @@ userRouter.post("/content", async (req, res) => {
   }
 });
 
-userRouter.get("/contents", async (req, res) => {
+userRouter.get("/contents", async (req: Request, res: Response) => {
+  await getContents(req, res);
+});
+
+userRouter.get("/contents/:type", async (req: Request, res: Response) => {
+  await getContents(req, res);
+});
+
+async function getContents(req: Request, res: Response) {
   try {
-    const userContents = await ContentModel.find({
+    const filter: { userId?: string | undefined; type?: string } = {
       userId: req.userId,
-    })
+    };
+
+    if (req.params.type) {
+      filter.type = req.params.type;
+    }
+
+    const userContents = await ContentModel.find(filter)
       .populate("tags", "title")
       .lean();
 
     if (userContents.length === 0) {
-      return res.status(200).json({
-        message: "No Contents Found!",
-      });
+      return res.status(200).json({ message: "No Contents Found!" });
     }
+
     const formattedContents = userContents.map((content) => ({
       ...content,
       tags: Array.isArray(content.tags)
-        ? content.tags.map((tag: any) => tag.title)
+        ? content.tags.map((tag) =>
+            typeof tag === "object" && "title" in tag ? tag.title : tag
+          )
         : [],
     }));
 
-    res.status(200).json({
-      message: formattedContents,
-    });
+    res.status(200).json({ message: formattedContents });
   } catch (e) {
-    console.error(
-      `[${req.method} ${req.path}] userId=${
-        req.userId || "N/A"
-      } body=${JSON.stringify(req.body)} Error:`,
-      e
-    );
-
-    res.status(500).json({
-      error: "Error Fetching Contents!",
-    });
+    console.error("Error fetching contents:", e);
+    res.status(500).json({ error: "Error Fetching Contents!" });
   }
-});
+}
 
 userRouter.put("/update-content", async (req, res) => {
   const ValidContent = schemaContent.safeParse(req.body);
@@ -358,6 +397,7 @@ userRouter.post("/share", async (req, res) => {
 
       res.status(201).json({
         message: "content shared successfully",
+        hash: sharedLink.hash,
       });
     }
 
