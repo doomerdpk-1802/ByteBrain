@@ -2,7 +2,7 @@ import express, { Express } from "express";
 import mongoose from "mongoose";
 import { userRouter } from "./routes/routes.js";
 import http from "http";
-import { DATABASE_URL_TEST_STR, PORT } from "./config.js";
+import { DATABASE_URL_STR, PORT } from "./config.js";
 import cors from "cors";
 
 const app: Express = express();
@@ -14,7 +14,7 @@ app.use("/api/v1", userRouter);
 
 async function startApplication() {
   try {
-    await mongoose.connect(DATABASE_URL_TEST_STR);
+    await mongoose.connect(DATABASE_URL_STR);
     console.log("Successfully connected to the Database!");
     app.listen(port, () => {
       console.log("Server is running on port " + port);

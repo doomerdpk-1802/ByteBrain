@@ -11,9 +11,9 @@ if (!JWT_SECRET) {
   throw new Error("Error fetching JWT_SECRET from environment variables");
 }
 
-if (!DATABASE_URL_TEST) {
+if (!DATABASE_URL) {
   throw new Error("Error fetching DATABASE URL from environment variables");
 }
 
-export const DATABASE_URL_TEST_STR: string = DATABASE_URL_TEST;
+export const DATABASE_URL_STR: string = DATABASE_URL;
 export const JWT_SECRET_STR: string = JWT_SECRET;
