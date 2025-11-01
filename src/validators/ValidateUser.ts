@@ -10,7 +10,7 @@ export const schemaUser = z.object({
     .max(100, "Last name must be less than 100 characters")
     .trim()
     .optional(),
-  email: z.string().email("Invalid email format").toLowerCase(),
+  email: z.string().email("Invalid email format").toLowerCase().trim(),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long")
@@ -21,5 +21,6 @@ export const schemaUser = z.object({
     .regex(
       /[@$!%*?&]/,
       "Password must contain at least one special character (@, $, !, %, *, ?, &)"
-    ),
+    )
+    .trim(),
 });

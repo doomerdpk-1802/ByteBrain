@@ -24,7 +24,7 @@ async function startApplication() {
     const gracefulShutdown = async () => {
       console.log("Shutting down...");
       await mongoose.connection.close();
-      console.log("MongoDB connection closed");
+      console.log("✅ DataBase connection closed");
       server.close(() => {
         console.log("✅ Server closed");
         process.exit(0);

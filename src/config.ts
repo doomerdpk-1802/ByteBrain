@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-const DATABASE_URL_TEST = process.env.DATABASE_URL_TEST;
+// const DATABASE_URL_TEST = process.env.DATABASE_URL_TEST;
 const DATABASE_URL = process.env.DATABASE_URL;
 const JWT_SECRET = process.env.JWT_SECRET;
 export const saltRounds = 10;

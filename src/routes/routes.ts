@@ -150,8 +150,11 @@ userRouter.post("/content", async (req, res) => {
       const { link, type, title, tags, linkText }: ContentSchemaType =
         ValidContent.data;
 
+      const userId = req.userId;
+
       const content = await ContentModel.findOne({
         title,
+        userId,
       });
 
       if (content) {
@@ -161,25 +164,19 @@ userRouter.post("/content", async (req, res) => {
         });
       }
 
-      const userId = req.userId;
-
       const tagArray = tags.split(",");
 
-      // Retrieve all existing tags
       const existingTags = await TagModel.find({ title: { $in: tagArray } });
       const existingTagNames = existingTags.map((tag) => tag.title);
 
-      // Filter the tags which are not present in current list of tags
       const newTagNames = tagArray.filter(
         (tag: string) => !existingTagNames.includes(tag)
       );
 
-      // Create the new tags in tags table
       const newTags = await TagModel.insertMany(
         newTagNames.map((title: string) => ({ title }))
       );
 
-      //retirve the id's of all the tags
       const allTagIds = [
         ...existingTags.map((t) => t._id),
         ...newTags.map((t) => t._id),

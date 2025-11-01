@@ -2,12 +2,10 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { JWT_SECRET_STR } from "../config.js";
 
-//extending the existing jwt payload
 interface UserJwtPayload extends JwtPayload {
   userId: string;
 }
 
-// extending the existing Request interface to include a new optional property
 declare module "express-serve-static-core" {
   interface Request {
     userId?: string;
