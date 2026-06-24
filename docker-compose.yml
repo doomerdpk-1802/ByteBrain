@@ -1,0 +1,34 @@
+services:
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - data_db:/data/db
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 5173:80
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  data_db:
