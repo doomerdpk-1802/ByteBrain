@@ -1,0 +1,34 @@
+{
+  "name": "Bytebrain-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc -b && echo 'Build completed successfully!'",
+    "dev": "npx tsc -b && nodemon dist/index.js",
+    "start": "npx tsc -b && node dist/index.js",
+    "start:pm2": "npx tsc -b && pm2 start dist/index.js --name bytebrain-backend",
+    "stop:pm2": "pm2 stop bytebrain-backend && pm2 delete bytebrain-backend || true"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.0.0",
+    "typescript": "^6.0.3"
+  }
+}
