@@ -4,7 +4,7 @@ dotenv.config();
 const DATABASE_URL = process.env.DATABASE_URL;
 const JWT_SECRET = process.env.JWT_SECRET;
 export const saltRounds = 10;
-export const PORT = 3001;
+export const PORT = 3000;
 
 if (!JWT_SECRET) {
   throw new Error("Error fetching JWT_SECRET from environment variables");
