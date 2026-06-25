@@ -9,6 +9,8 @@ import { Icon } from "./Icons";
 import { useShare } from "../hooks/useShare";
 import UnShareIcon from "../Icons/unShareIcon";
 import { useState } from "react";
+import { toast } from "sonner";
+import ConfirmDialog from "./ConfirmDialog";
 
 interface CardComponentProps {
   contentId?: string;
@@ -34,11 +36,12 @@ export function CardComponent({
   const queryClient = useQueryClient();
 
   const [isShared, setIsShared] = useState(share ?? false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const { mutate: deleteContent, isPending } = useDeleteContent();
   const { mutate: shareContent, isPending: isPendingShare } = useShare();
 
   const handleShare = () => {
-    if (!contentId) return alert("Missing content ID!");
+    if (!contentId) return toast.error("Missing content ID!");
 
     shareContent(
       { contentId, share: !isShared },
@@ -47,15 +50,15 @@ export function CardComponent({
           if (res.hash) {
             const link = `${window.location.origin}/brain/${res.hash}`;
             navigator.clipboard.writeText(link);
-            alert(`Link copied!\n${link}`);
+            toast.success(`Link copied!\n${link}`);
           } else {
-            alert("Content unshared successfully!");
+            toast.success("Content unshared successfully!");
           }
           setIsShared(!isShared);
           queryClient.invalidateQueries({ queryKey: ["contents"] });
         },
         onError: (err: any) => {
-          alert(err?.response?.data?.error || "Error sharing content!");
+          toast.error(err?.response?.data?.error || "Error sharing content!");
         },
       }
     );
@@ -74,26 +77,28 @@ export function CardComponent({
   };
 
   const handleDelete = () => {
-    if (!contentId) return alert("Missing content ID!");
+    if (!contentId) return toast.error("Missing content ID!");
+    setShowConfirm(true);
+  };
 
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this content?"
-    );
-    if (!confirmDelete) return;
+  const handleConfirmDelete = () => {
+    setShowConfirm(false);
+    if (!contentId) return;
 
     deleteContent(
       { contentId },
       {
         onSuccess: (res) => {
-          alert(res.message || "Content Deleted successfully!");
+          toast.success(res.message || "Content deleted successfully!");
           queryClient.invalidateQueries({ queryKey: ["contents"] });
         },
         onError: (err: any) => {
-          alert(err?.response?.data?.error || "Error deleting content!");
+          toast.error(err?.response?.data?.error || "Error deleting content!");
         },
       }
     );
   };
+
   return (
     <div className="w-full max-w-sm border rounded-lg p-4 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <div className="flex justify-between gap-4 mb-6">
@@ -138,6 +143,17 @@ export function CardComponent({
           </span>
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={showConfirm}
+        title="Delete Content"
+        message="Are you sure you want to delete this content?"
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 }

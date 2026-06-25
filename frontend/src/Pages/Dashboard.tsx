@@ -12,9 +12,9 @@ import ImageIcon from "../Icons/ImageIcon";
 import YoutubeIcon from "../Icons/YoutubeIcon";
 import XIcon from "../Icons/XIcon";
 import ArticleIcon from "../Icons/articleIcon";
-import Alert from "../Components/Alert";
 import { useUpdateContent } from "../hooks/useUpdateContent";
 import { useTypeContents } from "../hooks/useContentsType";
+import { toast } from "sonner";
 
 interface FormData {
   link: string;
@@ -47,14 +47,14 @@ export default function Dashboard() {
       const msg =
         (contentsError as any)?.response?.data?.error ||
         "Something went wrong while fetching contents.";
-      alert(msg);
+      toast.error(msg);
     }
 
     if (isMeError && meError) {
       const msg =
         (meError as any)?.response?.data?.error ||
         "Something went wrong while fetching user details.";
-      alert(msg);
+      toast.error(msg);
     }
   }, [isContentsError, contentsError, isMeError, meError]);
 
@@ -63,7 +63,6 @@ export default function Dashboard() {
     handleSubmit,
     reset,
     setValue,
-    formState: { errors },
   } = useForm<FormData>({ mode: "onTouched" });
 
   const onSubmit = (data: FormData) => {
@@ -72,7 +71,7 @@ export default function Dashboard() {
         { ...data, contentId: editContent.contentId },
         {
           onSuccess: () => {
-            alert("Content updated successfully!");
+            toast.success("Content updated successfully!");
             reset();
             setEditContent(null);
             setIsOpen(false);
@@ -82,14 +81,14 @@ export default function Dashboard() {
             const errorMsg =
               error.response?.data?.error ||
               "Something went wrong while updating content.";
-            alert(errorMsg);
+            toast.error(errorMsg);
           },
         }
       );
     } else {
       mutate(data, {
         onSuccess: () => {
-          alert("Content created successfully!");
+          toast.success("Content created successfully!");
           reset();
           setIsOpen(false);
           refetch();
@@ -98,7 +97,7 @@ export default function Dashboard() {
           const errorMsg =
             error.response?.data?.error ||
             "Something went wrong. Please try again later.";
-          alert(errorMsg);
+          toast.error(errorMsg);
         },
       });
     }
@@ -180,7 +179,10 @@ export default function Dashboard() {
         setIsOpen={setIsOpen}
       >
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit, (errs) => {
+            const first = Object.values(errs).find(Boolean);
+            if (first?.message) toast.error(first.message);
+          })}
           className="flex flex-col gap-4 w-full"
         >
           <GenericInput
@@ -249,17 +251,6 @@ export default function Dashboard() {
               Tweet
             </GenericButton>
           </div>
-
-          {Object.keys(errors).length > 0 && (
-            <Alert>
-              <ul className="list-disc list-inside space-y-1 text-red-500 text-sm">
-                {errors.link && <li>{errors.link.message}</li>}
-                {errors.linkText && <li>{errors.linkText.message}</li>}
-                {errors.title && <li>{errors.title.message}</li>}
-                {errors.tags && <li>{errors.tags.message}</li>}
-              </ul>
-            </Alert>
-          )}
 
           <GenericButton type="submit" disabled={isPending || isUpdating}>
             {isPending || isUpdating

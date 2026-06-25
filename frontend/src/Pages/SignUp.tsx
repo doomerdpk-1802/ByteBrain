@@ -4,7 +4,7 @@ import { useSignUp } from "../hooks/useSignUp";
 import GenericInput from "../Components/Input";
 import { GenericButton } from "../Components/Button";
 import Form from "../Components/Form";
-import Alert from "../Components/Alert";
+import { toast } from "sonner";
 
 type FormData = {
   firstName: string;
@@ -17,7 +17,6 @@ export default function Signup() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
   } = useForm<FormData>({ mode: "onTouched" });
 
   const { mutate, isPending } = useSignUp();
@@ -26,7 +25,7 @@ export default function Signup() {
   const onSubmit = (data: FormData) => {
     mutate(data, {
       onSuccess: () => {
-        alert("Signup successful!");
+        toast.success("Signup successful!");
         navigate("/login");
       },
       onError: (error: any) => {
@@ -34,7 +33,7 @@ export default function Signup() {
           error.response?.data?.error ||
           "Something went wrong. Please try again later.";
 
-        alert(errorMsg);
+        toast.error(errorMsg);
       },
     });
   };
@@ -42,7 +41,10 @@ export default function Signup() {
   return (
     <Form title="Enter your details to Signup">
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, (errs) => {
+          const first = Object.values(errs).find(Boolean);
+          if (first?.message) toast.error(first.message);
+        })}
         className="flex flex-col gap-4 w-full max-w-md mx-auto"
       >
         <GenericInput
@@ -98,16 +100,6 @@ export default function Signup() {
             },
           })}
         />
-
-        {Object.keys(errors).length > 0 && (
-          <Alert>
-            <ul className="list-disc list-inside space-y-1 text-red-500 text-sm">
-              {errors.firstName && <li>{errors.firstName.message}</li>}
-              {errors.email && <li>{errors.email.message}</li>}
-              {errors.password && <li>{errors.password.message}</li>}
-            </ul>
-          </Alert>
-        )}
 
         <GenericButton type="submit" disabled={isPending}>
           {isPending ? "Submitting..." : "Submit"}
