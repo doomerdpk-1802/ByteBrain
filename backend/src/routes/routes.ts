@@ -237,8 +237,16 @@ async function getContents(req: Request, res: Response) {
       return res.status(200).json({ message: "No Contents Found!" });
     }
 
+    const contentIds = userContents.map((c) => c._id);
+    const links = await LinkModel.find({
+      contentId: { $in: contentIds },
+      userId: req.userId,
+    }).lean();
+    const sharedIds = new Set(links.map((l) => l.contentId.toString()));
+
     const formattedContents = userContents.map((content) => ({
       ...content,
+      isShared: sharedIds.has(content._id.toString()),
       tags: Array.isArray(content.tags)
         ? content.tags.map((tag) =>
             typeof tag === "object" && "title" in tag ? tag.title : tag

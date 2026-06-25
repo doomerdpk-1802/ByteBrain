@@ -140,7 +140,7 @@ export default function Dashboard() {
             contents.map((item: any) => (
               <CardComponent
                 key={item._id}
-                share={false}
+                share={item.isShared ?? false}
                 contentId={item._id}
                 title={item.title}
                 titleIcon={
