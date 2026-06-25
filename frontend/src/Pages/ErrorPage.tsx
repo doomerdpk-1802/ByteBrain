@@ -7,7 +7,7 @@ export default function ErrorPage() {
   return (
     <div className="flex h-screen items-center justify-center">
       <div className="flex flex-col gap-8 items-center">
-        <div className="border border-gray-300 rounded-md">
+        <div className="border border-gray-300 rounded-md dark:border-gray-600">
           <Icon404 />
         </div>
         <GenericButton

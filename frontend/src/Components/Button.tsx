@@ -16,7 +16,7 @@ export const GenericButton: React.FC<GenericButtonProps> = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="px-6 py-2 my-2 bg-blue-600 text-xs sm:text-lg text-white rounded-md font-medium transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="px-6 py-2 my-2 bg-blue-600 text-xs sm:text-lg text-white rounded-md font-medium transition-all hover:bg-blue-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-blue-500 dark:hover:bg-blue-600"
     >
       {children}
     </button>

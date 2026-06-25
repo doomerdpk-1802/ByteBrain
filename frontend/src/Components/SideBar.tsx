@@ -49,9 +49,9 @@ export function Sidebar({ onSelectType }: SidebarProps) {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
       <div
-        className={`bg-white border-r border-gray-200 transition-all duration-300 ease-in-out ${
+        className={`bg-white border-r border-gray-200 transition-all duration-300 ease-in-out dark:bg-gray-900 dark:border-gray-700 ${
           isOpen ? "w-64" : "w-20"
         }`}
       >
@@ -64,7 +64,7 @@ export function Sidebar({ onSelectType }: SidebarProps) {
           {isOpen && <BrainIcon />}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-900"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
             aria-label="Toggle sidebar"
           >
             {isOpen ? <LeftArrow /> : "☰"}

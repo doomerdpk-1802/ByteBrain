@@ -15,6 +15,7 @@ import ArticleIcon from "../Icons/articleIcon";
 import { useUpdateContent } from "../hooks/useUpdateContent";
 import { useTypeContents } from "../hooks/useContentsType";
 import { toast } from "sonner";
+import { DarkModeToggle } from "../Components/DarkModeToggle";
 
 interface FormData {
   link: string;
@@ -116,10 +117,11 @@ export default function Dashboard() {
 
       <div className="flex-1">
         <div className="flex justify-between items-center w-full p-9">
-          <span className="text-xs sm:text-2xl">
+          <span className="text-xs sm:text-2xl text-blue-600 dark:text-blue-400">
             <b>{me}</b>
           </span>
           <div className="flex gap-4 items-center text-xs sm:text-lg">
+            <DarkModeToggle />
             <GenericButton onClick={() => setIsOpen(true)}>
               Add Content
             </GenericButton>
@@ -168,7 +170,7 @@ export default function Dashboard() {
               />
             ))
           ) : (
-            <p className="text-gray-500 text-sm">No content added yet.</p>
+            <p className="text-gray-500 text-sm dark:text-gray-400">No content added yet.</p>
           )}
         </div>
       </div>

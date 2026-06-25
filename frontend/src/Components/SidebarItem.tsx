@@ -14,10 +14,10 @@ export function SidebarItem(props: SidebarItemData) {
   return (
     <div
       onClick={onClick}
-      className="p-3 flex items-center gap-4 cursor-pointer rounded-lg hover:bg-blue-100 transition-colors"
+      className="p-3 flex items-center gap-4 cursor-pointer rounded-lg hover:bg-blue-100 transition-colors dark:hover:bg-blue-900"
     >
-      <div className="text-blue-600 flex-shrink-0">{icon}</div>
-      {open && <p className="text-gray-900 text-sm font-medium">{text}</p>}
+      <div className="text-blue-600 flex-shrink-0 dark:text-blue-400">{icon}</div>
+      {open && <p className="text-gray-900 text-sm font-medium dark:text-gray-100">{text}</p>}
     </div>
   );
 }

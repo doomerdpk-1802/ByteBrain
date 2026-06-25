@@ -18,7 +18,7 @@ export const Icon: React.FC<IconProps> = ({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="p-2 bg-gray-200 text-xs rounded-md font-medium transition-all hover:bg-gray-500 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="p-2 bg-gray-200 text-xs rounded-md font-medium transition-all hover:bg-gray-500 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-700 dark:hover:bg-gray-500"
     >
       {children}
     </button>

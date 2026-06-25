@@ -32,7 +32,7 @@ export default function Alert({
   return (
     <div
       role="alert"
-      className={`relative flex items-center gap-3 p-4 sm:p-5 rounded-2xl shadow-lg bg-white/60 backdrop-blur-md border border-white/30 text-gray-800 transition-all duration-300 hover:shadow-xl hover:scale-[1.01]`}
+      className={`relative flex items-center gap-3 p-4 sm:p-5 rounded-2xl shadow-lg bg-white/60 backdrop-blur-md border border-white/30 text-gray-800 transition-all duration-300 hover:shadow-xl hover:scale-[1.01] dark:bg-gray-900/60 dark:border-gray-700/30 dark:text-gray-200`}
     >
       <span className="text-base sm:text-lg font-medium leading-relaxed flex-1">
         {children}
@@ -44,7 +44,7 @@ export default function Alert({
             setVisible(false);
             onClose?.();
           }}
-          className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition"
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 transition dark:text-gray-400 dark:hover:text-gray-200"
           aria-label="Close alert"
         >
           ✕

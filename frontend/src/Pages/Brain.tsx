@@ -11,7 +11,7 @@ export default function SharedBrain() {
 
   if (isLoading)
     return (
-      <div className="h-screen flex justify-center items-center text-3xl text-center text-gray-500">
+      <div className="h-screen flex justify-center items-center text-3xl text-center text-gray-500 dark:text-gray-400">
         Loading...
       </div>
     );
@@ -33,10 +33,10 @@ export default function SharedBrain() {
 
   return (
     <div className="h-screen flex justify-center items-center">
-      <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow flex flex-col gap-6 border border-gray-200">
+      <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow flex flex-col gap-6 border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div className="flex items-center gap-3 mb-4 justify-center">
-          <div className="text-blue-600">{titleIcon}</div>
-          <h3 className="text-gray-900 text-lg font-semibold">{item.title}</h3>
+          <div className="text-blue-600 dark:text-blue-400">{titleIcon}</div>
+          <h3 className="text-gray-900 text-lg font-semibold dark:text-gray-100">{item.title}</h3>
         </div>
 
         <div className="mb-4 flex justify-center">
@@ -44,7 +44,7 @@ export default function SharedBrain() {
             href={item.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-blue-600 hover:underline"
+            className="inline-flex items-center gap-2 text-blue-600 hover:underline dark:text-blue-400"
           >
             {item.linkText}
             <ExternalLink size={16} />
